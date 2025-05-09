@@ -1,0 +1,278 @@
+-- 基本服務與玩家
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
+
+-- 一執行就先改名
+local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+	local head = char:WaitForChild("Head", 5)
+	if head then
+		local nametag = head:FindFirstChild("Nametag")
+		if nametag and nametag:FindFirstChild("TextLabel") then
+			nametag.TextLabel.Text = text ~= "" and text or "catlyn"
+		end
+	end
+
+
+-- GUI 主體
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+ScreenGui.Name = "MaolingHub"
+
+local Frame = Instance.new("Frame", ScreenGui)
+Frame.Size = UDim2.new(0, 400, 0, 300)
+Frame.Position = UDim2.new(0.3, 0, 0.3, 0)
+Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Frame.Active = true
+Frame.Draggable = true
+
+Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 10)
+
+local Title = Instance.new("TextLabel", Frame)
+Title.Size = UDim2.new(1, -70, 0, 40)
+Title.Position = UDim2.new(0, 10, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "貓玲的階段精通(>^ω^<) v1.0"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 20
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextXAlignment = Enum.TextXAlignment.Left
+
+local Close = Instance.new("TextButton", Frame)
+Close.Size = UDim2.new(0, 30, 0, 30)
+Close.Position = UDim2.new(1, -35, 0, 5)
+Close.Text = "X"
+Close.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+Close.TextColor3 = Color3.fromRGB(255, 255, 255)
+Close.Font = Enum.Font.GothamBold
+Close.TextSize = 16
+Close.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
+
+Instance.new("UICorner", Close).CornerRadius = UDim.new(0, 6)
+
+local Minimize = Instance.new("TextButton", Frame)
+Minimize.Size = UDim2.new(0, 30, 0, 30)
+Minimize.Position = UDim2.new(1, -70, 0, 5)
+Minimize.Text = "-"
+Minimize.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+Minimize.TextColor3 = Color3.fromRGB(255, 255, 255)
+Minimize.Font = Enum.Font.GothamBold
+Minimize.TextSize = 16
+
+Instance.new("UICorner", Minimize).CornerRadius = UDim.new(0, 6)
+
+local SideBar = Instance.new("Frame", Frame)
+SideBar.Size = UDim2.new(0, 100, 1, -40)
+SideBar.Position = UDim2.new(0, 0, 0, 40)
+SideBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+
+Instance.new("UICorner", SideBar).CornerRadius = UDim.new(0, 6)
+
+local Content = Instance.new("Frame", Frame)
+Content.Size = UDim2.new(1, -100, 1, -40)
+Content.Position = UDim2.new(0, 100, 0, 40)
+Content.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+Instance.new("UICorner", Content).CornerRadius = UDim.new(0, 6)
+
+-- 縮小功能
+local isMinimized = false
+local fullSize = UDim2.new(0, 400, 0, 300)
+local miniSize = UDim2.new(0, 400, 0, 40)
+Minimize.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    SideBar.Visible = not isMinimized
+    Content.Visible = not isMinimized
+    Frame.Size = isMinimized and miniSize or fullSize
+end)
+
+-- 分區按鈕 - 只有一個分區：階段精通
+local Section1 = Instance.new("TextButton", SideBar)
+Section1.Size = UDim2.new(1, 0, 0, 40)
+Section1.Position = UDim2.new(0, 0, 0, 0)
+Section1.Text = "階段精通"
+Section1.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+Section1.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+Instance.new("UICorner", Section1).CornerRadius = UDim.new(0, 6)
+
+-- 階段精通分區
+local PhaseScroll = Instance.new("ScrollingFrame", Content)
+PhaseScroll.Size = UDim2.new(1, 0, 1, 0)
+PhaseScroll.CanvasSize = UDim2.new(0, 0, 0, 100)
+PhaseScroll.ScrollBarThickness = 6
+PhaseScroll.BackgroundTransparency = 1
+PhaseScroll.Visible = true
+PhaseScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+PhaseScroll.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+PhaseScroll.ScrollingDirection = Enum.ScrollingDirection.Y
+
+-- 連續使用階段能力按鈕
+local phaseAbilityBtn = Instance.new("TextButton", PhaseScroll)
+phaseAbilityBtn.Size = UDim2.new(0, 160, 0, 30)
+phaseAbilityBtn.Position = UDim2.new(0.5, -80, 0, 20)
+phaseAbilityBtn.Text = "連續使用階段能力: 關"
+phaseAbilityBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+phaseAbilityBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+phaseAbilityBtn.Font = Enum.Font.Gotham
+phaseAbilityBtn.TextSize = 14
+
+Instance.new("UICorner", phaseAbilityBtn).CornerRadius = UDim.new(0, 6)
+
+-- 階段自動攻擊按鈕
+local phaseAttackBtn = Instance.new("TextButton", PhaseScroll)
+phaseAttackBtn.Size = UDim2.new(0, 160, 0, 30)
+phaseAttackBtn.Position = UDim2.new(0.5, -80, 0, 60)
+phaseAttackBtn.Text = "階段自動攻擊: 關"
+phaseAttackBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+phaseAttackBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+phaseAttackBtn.Font = Enum.Font.Gotham
+phaseAttackBtn.TextSize = 14
+
+Instance.new("UICorner", phaseAttackBtn).CornerRadius = UDim.new(0, 6)
+
+-- 位置固定按鈕
+local posLockBtn = Instance.new("TextButton", PhaseScroll)
+posLockBtn.Size = UDim2.new(0, 160, 0, 30)
+posLockBtn.Position = UDim2.new(0.5, -80, 0, 100)
+posLockBtn.Text = "位置固定: 關"
+posLockBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+posLockBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+posLockBtn.Font = Enum.Font.Gotham
+posLockBtn.TextSize = 14
+
+Instance.new("UICorner", posLockBtn).CornerRadius = UDim.new(0, 6)
+
+-- 連續使用階段能力功能
+local isPhaseAbilityEnabled = false
+local phaseAbilityLoop = nil
+
+phaseAbilityBtn.MouseButton1Click:Connect(function()
+    isPhaseAbilityEnabled = not isPhaseAbilityEnabled
+    phaseAbilityBtn.Text = isPhaseAbilityEnabled and "連續使用階段能力: 開" or "連續使用階段能力: 關"
+    
+    if isPhaseAbilityEnabled then
+        phaseAbilityLoop = task.spawn(function()
+            while isPhaseAbilityEnabled do
+                game:GetService("ReplicatedStorage").PhaseA:FireServer()
+                task.wait(6.5) -- 每6.5秒重複一次
+            end
+        end)
+    elseif phaseAbilityLoop then
+        task.cancel(phaseAbilityLoop)
+        phaseAbilityLoop = nil
+    end
+end)
+
+-- 階段自動攻擊功能
+local isPhaseAttackEnabled = false
+local phaseAttackLoop = nil
+
+phaseAttackBtn.MouseButton1Click:Connect(function()
+    isPhaseAttackEnabled = not isPhaseAttackEnabled
+    phaseAttackBtn.Text = isPhaseAttackEnabled and "階段自動攻擊: 開" or "階段自動攻擊: 關"
+    
+    if isPhaseAttackEnabled then
+        phaseAttackLoop = task.spawn(function()
+            while isPhaseAttackEnabled do
+                -- 找最近的玩家
+                local closestPlayer = nil
+                local closestDistance = math.huge
+                local character = LocalPlayer.Character
+                
+                if character and character:FindFirstChild("HumanoidRootPart") then
+                    local root = character.HumanoidRootPart
+                    
+                    for _, player in pairs(Players:GetPlayers()) do
+                        if player ~= LocalPlayer and player.Character and 
+                           player.Character:FindFirstChild("Head") and 
+                           player.Character:FindFirstChild("Humanoid") and 
+                           player.Character.Humanoid.Health > 0 then
+                            
+                            local targetRoot = player.Character:FindFirstChild("HumanoidRootPart")
+                            if targetRoot then
+                                local distance = (targetRoot.Position - root.Position).Magnitude
+                                if distance < closestDistance then
+                                    closestDistance = distance
+                                    closestPlayer = player
+                                end
+                            end
+                        end
+                    end
+                    
+                    if closestPlayer then
+                        local args = {
+                            [1] = closestPlayer.Character.Head
+                        }
+                        game:GetService("ReplicatedStorage").PhaseH:FireServer(unpack(args))
+                    end
+                end
+                
+                task.wait(0.6) -- 每0.6秒重複一次
+            end
+        end)
+    elseif phaseAttackLoop then
+        task.cancel(phaseAttackLoop)
+        phaseAttackLoop = nil
+    end
+end)
+
+-- 位置固定功能
+local isPosLockEnabled = false
+local posLockLoop = nil
+local savedPosition = nil
+
+posLockBtn.MouseButton1Click:Connect(function()
+    isPosLockEnabled = not isPosLockEnabled
+    posLockBtn.Text = isPosLockEnabled and "位置固定: 開" or "位置固定: 關"
+    
+    if isPosLockEnabled then
+        -- 保存當前位置
+        local character = LocalPlayer.Character
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            savedPosition = character.HumanoidRootPart.CFrame
+            
+            posLockLoop = task.spawn(function()
+                while isPosLockEnabled and character and character:FindFirstChild("HumanoidRootPart") and savedPosition do
+                    character.HumanoidRootPart.CFrame = savedPosition
+                    task.wait()
+                end
+            end)
+        end
+    elseif posLockLoop then
+        task.cancel(posLockLoop)
+        posLockLoop = nil
+        savedPosition = nil
+    end
+end)
+
+-- 清理函數，當腳本被銷毀時調用
+local function cleanUp()
+    if phaseAbilityLoop then
+        task.cancel(phaseAbilityLoop)
+        phaseAbilityLoop = nil
+    end
+    
+    if phaseAttackLoop then
+        task.cancel(phaseAttackLoop)
+        phaseAttackLoop = nil
+    end
+    
+    if posLockLoop then
+        task.cancel(posLockLoop)
+        posLockLoop = nil
+    end
+end
+
+-- 添加清理事件
+ScreenGui.AncestryChanged:Connect(function(_, newParent)
+    if not newParent then
+        cleanUp()
+    end
+end)
+
+-- 防止重複執行的檢查
+if _G.maolingPhaseLoaded then
+    warn("貓玲的階段精通腳本已經在運行中")
+    return
+end
+_G.maolingPhaseLoaded = true
