@@ -31,7 +31,7 @@ local Title = Instance.new("TextLabel", Frame)
 Title.Size = UDim2.new(1, -70, 0, 40)
 Title.Position = UDim2.new(0, 10, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "貓玲的階段精通(>^ω^<) v1.0"
+Title.Text = "貓玲的階段精通(>^ω^<) v1.1"
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 20
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -142,6 +142,18 @@ posLockBtn.TextSize = 14
 
 Instance.new("UICorner", posLockBtn).CornerRadius = UDim.new(0, 6)
 
+-- 自動刷第一、三任務按鈕（新增）
+local autoTaskBtn = Instance.new("TextButton", PhaseScroll)
+autoTaskBtn.Size = UDim2.new(0, 160, 0, 30)
+autoTaskBtn.Position = UDim2.new(0.5, -80, 0, 140)
+autoTaskBtn.Text = "自動刷第一、三任務: 關"
+autoTaskBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+autoTaskBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+autoTaskBtn.Font = Enum.Font.Gotham
+autoTaskBtn.TextSize = 14
+
+Instance.new("UICorner", autoTaskBtn).CornerRadius = UDim.new(0, 6)
+
 -- 連續使用階段能力功能
 local isPhaseAbilityEnabled = false
 local phaseAbilityLoop = nil
@@ -245,6 +257,66 @@ posLockBtn.MouseButton1Click:Connect(function()
     end
 end)
 
+-- 自動刷第一、三任務功能（新增）
+local isAutoTaskEnabled = false
+local autoTaskLoop = nil
+
+autoTaskBtn.MouseButton1Click:Connect(function()
+    isAutoTaskEnabled = not isAutoTaskEnabled
+    autoTaskBtn.Text = isAutoTaskEnabled and "自動刷第一、三任務: 開" or "自動刷第一、三任務: 關"
+    
+    if isAutoTaskEnabled then
+        autoTaskLoop = task.spawn(function()
+            while isAutoTaskEnabled do
+                -- 執行第一任務 (使用階段能力)
+                game:GetService("ReplicatedStorage").PhaseA:FireServer()
+                
+                -- 等待6.3秒
+                task.wait(6.3)
+                
+                -- 執行第三任務 (攻擊最近的玩家)
+                local closestPlayer = nil
+                local closestDistance = math.huge
+                local character = LocalPlayer.Character
+                
+                if character and character:FindFirstChild("HumanoidRootPart") then
+                    local root = character.HumanoidRootPart
+                    
+                    for _, player in pairs(Players:GetPlayers()) do
+                        if player ~= LocalPlayer and player.Character and 
+                           player.Character:FindFirstChild("Head") and 
+                           player.Character:FindFirstChild("Humanoid") and 
+                           player.Character.Humanoid.Health > 0 then
+                            
+                            local targetRoot = player.Character:FindFirstChild("HumanoidRootPart")
+                            if targetRoot then
+                                local distance = (targetRoot.Position - root.Position).Magnitude
+                                if distance < closestDistance then
+                                    closestDistance = distance
+                                    closestPlayer = player
+                                end
+                            end
+                        end
+                    end
+                    
+                    if closestPlayer then
+                        local args = {
+                            [1] = closestPlayer.Character.Head
+                        }
+                        game:GetService("ReplicatedStorage").PhaseH:FireServer(unpack(args))
+                    end
+                end
+                
+                -- 短暫等待後重複循環
+                task.wait(0.2)
+            end
+        end)
+    elseif autoTaskLoop then
+        task.cancel(autoTaskLoop)
+        autoTaskLoop = nil
+    end
+end)
+
 -- 清理函數，當腳本被銷毀時調用
 local function cleanUp()
     if phaseAbilityLoop then
@@ -260,6 +332,11 @@ local function cleanUp()
     if posLockLoop then
         task.cancel(posLockLoop)
         posLockLoop = nil
+    end
+    
+    if autoTaskLoop then
+        task.cancel(autoTaskLoop)
+        autoTaskLoop = nil
     end
 end
 
