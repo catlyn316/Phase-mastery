@@ -272,7 +272,7 @@ autoTaskBtn.MouseButton1Click:Connect(function()
                 game:GetService("ReplicatedStorage").PhaseA:FireServer()
                 
                 -- 等待6.3秒
-                task.wait(6.3)
+                task.wait(5)
                 
                 -- 執行第三任務 (攻擊最近的玩家)
                 local closestPlayer = nil
