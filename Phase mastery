@@ -304,6 +304,8 @@ autoTaskBtn.MouseButton1Click:Connect(function()
                             [1] = closestPlayer.Character.Head
                         }
                         game:GetService("ReplicatedStorage").PhaseH:FireServer(unpack(args))
+                        wait(0.8)
+                        game:GetService("ReplicatedStorage").PhaseH:FireServer(unpack(args))
                     end
                 end
                 
